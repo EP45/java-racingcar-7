@@ -2,7 +2,6 @@ package racingcar;
 
 import camp.nextstep.edu.missionutils.Console;
 import camp.nextstep.edu.missionutils.Randoms;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import racingcar.messages.MessageManager;
 
 public class Application {
     public static void main(String[] args) {
@@ -19,7 +19,9 @@ public class Application {
         List<String> carNames = parseCarNamesRaw(carNamesRaw);
 
         if (!isDistinctCarNames(carNames)) {
-            throw new IllegalArgumentException("[ERROR] Duplicate names not allowed");
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.duplicate_names")
+            );
         }
 
         // Enroll carNames into cars with value 0
@@ -29,7 +31,9 @@ public class Application {
 
         // Check if cars is empty
         if (cars.isEmpty()) {
-            throw new IllegalArgumentException("[ERROR] You need to register at least one car.");
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.empty_car_list")
+            );
         }
 
         String iterationNumberRaw = getIterationNumberRaw();
@@ -42,13 +46,17 @@ public class Application {
     }
 
     private static String getCarNamesRaw() {
-        System.out.println("경주할 자동차 이름을 입력하세요.(이름은 쉼표(,) 기준으로 구분)");
+        System.out.println(
+                MessageManager.getMessage("prompt.car_names")
+        );
         return Console.readLine();
     }
 
     private static List<String> parseCarNamesRaw(String carNamesRaw) {
         if (carNamesRaw == null) {
-            throw new IllegalArgumentException("[ERROR] Enter valid car name(s separated by comma).");
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.invalid_car_name")
+            );
         }
 
         List<String> carNames = new ArrayList<>();
@@ -68,14 +76,15 @@ public class Application {
 
     private static void validateCarName(String carName) {
         if (carName == null) {
-            throw new IllegalArgumentException("[ERROR] Enter not-null car name.");
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.invalid_car_name")
+            );
         }
 
         if (carName.length() > 5) {
             throw new IllegalArgumentException(
-                    MessageFormat.format(
-                            "[ERROR] Length limit(5) exceeded: \"{0}\"({1})",
-                            carName, carName.length()));
+                    MessageManager.getMessage("error.invalid_car_name_length", carName, carName.length())
+            );
         }
     }
 
@@ -85,13 +94,15 @@ public class Application {
     }
 
     private static String getIterationNumberRaw() {
-        System.out.println("시도할 횟수는 몇 회인가요?");
+        System.out.println(MessageManager.getMessage("prompt.iteration_count"));
         return Console.readLine();
     }
 
     private static int parseIterationNumberRaw(String iterationNumberRaw) {
         if (iterationNumberRaw == null) {
-            throw new IllegalArgumentException("[ERROR] Enter not-null iteration number.");
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.invalid_iteration")
+            );
         }
 
         iterationNumberRaw = iterationNumberRaw.strip();
@@ -99,9 +110,9 @@ public class Application {
         try {
             iterationNumber = Integer.parseInt(iterationNumberRaw);
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(MessageFormat.format(
-                    "[ERROR] Failed to parse \"{0}\" into integer.",
-                    iterationNumberRaw));
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.parse_iteration_failed", iterationNumberRaw)
+            );
         }
         validateIterationNumber(iterationNumber);
         return iterationNumber;
@@ -109,12 +120,14 @@ public class Application {
 
     private static void validateIterationNumber(int iterationNumber) {
         if (iterationNumber <= 0) {
-            throw new IllegalArgumentException("[ERROR] You must enter positive integer.");
+            throw new IllegalArgumentException(
+                    MessageManager.getMessage("error.invalid_iteration_below_one")
+            );
         }
     }
 
     private static void playRound(Map<String, Integer> cars, int iterationNumber) {
-        System.out.println("\n실행 결과");
+        System.out.println(MessageManager.getMessage("output.round_result"));
         for (int i = 0; i < iterationNumber; i++) {
             for (Map.Entry<String, Integer> car : cars.entrySet()) {
                 car.setValue(car.getValue() + randomDistanceToMove());
@@ -133,7 +146,11 @@ public class Application {
     private static void showRoundResult(Map<String, Integer> cars) {
         for (Map.Entry<String, Integer> car : cars.entrySet()) {
             String distanceBar = "-".repeat(car.getValue());
-            System.out.println(car.getKey() + " : " + distanceBar);
+            System.out.println(
+                    MessageManager.getMessage(
+                            "output.round_result_individual", car.getKey(), distanceBar
+                    )
+            );
         }
         System.out.println();
     }
@@ -151,6 +168,9 @@ public class Application {
     }
 
     private static void showFinalResult(List<String> winnerCars) {
-        System.out.println("최종 우승자 : " + String.join(", ", winnerCars));
+        System.out.println(MessageManager.getMessage(
+                "output.final_winner", String.join(", ", winnerCars)
+                )
+        );
     }
 }
